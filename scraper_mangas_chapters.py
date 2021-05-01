@@ -199,9 +199,9 @@ class ScraperChaptersMangaLivre:
 
         return list_pages
 
-    def get_all_chapters(self, urls: List[str]) -> Dict[str, List[str]]:
+    def get_all_chapters(self, urls: List[str]) -> List[Dict[str, List[str]]]:
         """
-            Retorna um dicionário, onde cada chave contém as páginas do
+            Retorna uma lista de dicionários, onde cada chave contém as páginas do
             seu respectivo capítulo.
 
             Parâmetros:
@@ -209,18 +209,20 @@ class ScraperChaptersMangaLivre:
                 de um mangá do site "https://mangalivre.net".
 
             Retorno:
-                tipo: Dict[str, List[str]]
+                tipo: List[str]) -> List[Dict[str, List[str]]]
 
         """
 
-        all_chapters: Dict[str, List[str]] = {}
+        all_chapters: List[Dict[str, List[str]]] = []
 
         for url in urls:
+            manga_chapter: Dict[str, List[str]] = {}
             self.go_to_the_chapter(url)
             number_of_pages: int = self.get_number_of_pages()
             number_of_chapter: str = self.get_number_of_chapter()
             chapter_pages: List[str] = self.get_pages(number_of_pages)
-            all_chapters[number_of_chapter] = chapter_pages
+            manga_chapter[number_of_chapter] = chapter_pages
+            all_chapters.append(manga_chapter)
 
         return all_chapters
 
