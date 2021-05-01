@@ -57,9 +57,6 @@ class ScraperChaptersMangaLivre:
 
         Parâmetros:
 
-            chapters_urls: List[str] -> lista contendo todas as
-            urls dos capítulos de um mangá qualquer do site.
-
             timeout: int -> tempo em segundos que o navegador irá
             esperar para aparecerem as informações dos capítulos.
 
