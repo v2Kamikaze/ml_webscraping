@@ -201,8 +201,8 @@ class ScraperChaptersMangaLivre:
 
     def get_all_chapters(self, urls: List[str]) -> List[Dict[str, List[str]]]:
         """
-            Retorna uma lista de dicionários, onde cada chave contém as páginas do
-            seu respectivo capítulo.
+            Retorna uma lista de dicionários, onde cada dicionário
+            representa um capítulo.
 
             Parâmetros:
                 urls: List[str] -> é a lista de urls dos capítulos
