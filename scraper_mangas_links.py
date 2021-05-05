@@ -55,7 +55,7 @@ def _get_mangas_links(page_url: str) -> List[str]:
 def get_mangas_links_in_range(
         start: int,
         end: int,
-        sleep_time: int = 0) -> List[List[str]]:
+        sleep_time: int = 0) -> List[str]:
     """Busca as urls dos mangás no intervalo de páginas passado.
 
     :param start: o intervalo inicial de páginas. Deve ser maior que 0.
@@ -66,12 +66,11 @@ def get_mangas_links_in_range(
     requisição. Por padrão é 0.
 
     :return:
-        Uma lista que contém as listas das urls dos mangás contidos
-        no intervalo de páginas.
+        Uma lista que contém as urls dos mangás contidos em cada página.
     """
-    all_mangas_in_page_range: List[List[str]] = []
+    all_mangas_in_page_range: List[str] = []
     pages_urls = _set_range_pages(start, end)
     for page_url in pages_urls:
-        all_mangas_in_page_range.append(_get_mangas_links(page_url))
+        all_mangas_in_page_range += _get_mangas_links(page_url)
         time.sleep(sleep_time)
     return all_mangas_in_page_range

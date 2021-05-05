@@ -1,3 +1,5 @@
+import time
+
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.webdriver import WebDriver
@@ -6,15 +8,19 @@ from selenium.webdriver.firefox import options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
-from typing import List, Tuple, Dict
+from typing import List, Tuple
+from manga_model import MangaModel
 
 
-class ScraperChaptersMangaLivre:
+class ScraperChapters:
     """
-        ScraperChaptersMangaLivre é a classe que contém
+        ScraperChapters é uma classe que contém
         funcionalidades para remover informações de um ou
         muitos capítulos do site "https://mangalivre.net".
     """
+
+    # diferença de tempo entre os cliquer na página.
+    _CLICK_TIME = 0.5
 
     # _URL_BASE_READER é a url base para para o leitor dos capítulos.
     # Se a url de um capítulo não contém _URL_BASE_READER, então não
@@ -55,16 +61,15 @@ class ScraperChaptersMangaLivre:
         contidos em "https://mangalivre.net" onde as páginas são
         geradas por meio de javascript.
 
-        Parâmetros:
 
-            timeout: int -> tempo em segundos que o navegador irá
-            esperar para aparecerem as informações dos capítulos.
+        :param timeout: tempo em segundos que o navegador irá
+        esperar para aparecerem as informações dos capítulos.
 
-            headless_mode: bool -> define se o navegador será ou
-            não renderizado. Por padrão, o navegador será renderizado.
+        :param headless_mode: define se o navegador será ou
+        não renderizado. Por padrão, o navegador será renderizado.
 
-        Retorna:
-            tipo: None
+        :return:
+            None
         """
         self._options: options.Options = options.Options()
         self._options.headless = headless_mode
@@ -76,14 +81,13 @@ class ScraperChaptersMangaLivre:
 
     def go_to_the_chapter(self, url: str) -> None:
         """
-        Requisita no navegador a url do capítulo passado.
+        Requisita ao navegador a página do capítulo da url passada.
 
-        Parâmetros:
-            url: str -> a url do capítulo de um mangá
-            do site "https://mangalivre.net".
+        :param url: a url do capítulo de um mangá
+        do site "https://mangalivre.net".
 
-        Retorno:
-            tipo: None
+        :return:
+            None
         """
 
         if self._URL_BASE_READER not in url:
@@ -95,13 +99,8 @@ class ScraperChaptersMangaLivre:
         """
         Retorna o número de páginas do capítulo atual no navegador.
 
-        Exceções:
-            MangaLivreNumberOfPagesTimeoutException -> exceção disparada
-            caso estoure o limite de tempo para o elemento que contém o
-            número de páginas fique visível.
-
-        Retorno:
-            tipo: int
+        :return:
+            int
         """
 
         num_pages: int
@@ -128,11 +127,10 @@ class ScraperChaptersMangaLivre:
         return num_pages
 
     def get_number_of_chapter(self) -> str:
-        """
-            Retorna o número do capítulo atual do que está no browser.
+        """Retorna o número do capítulo atual do que está no browser.
 
-            Retorno:
-                tipo: int
+        :return:
+            int
         """
 
         number_of_chapter: str
@@ -165,14 +163,13 @@ class ScraperChaptersMangaLivre:
         """
         Retorna uma lista com os links das imagens do capítulo.
 
-        Parâmetros:
-            num_pages: int -> número de páginas do capítulo atual.
-            O número de páginas - 1 é o número de cliques necessários
-            para obter todas as páginas do capítulo, já que o capítulo
-            começa pela página 1.
+        :param number_of_pages: número de páginas do capítulo atual.
+        O número de páginas - 1 é o número de cliques necessários
+        para obter todas as páginas do capítulo, já que o capítulo
+        começa pela página 1.
 
-        Retorno:
-            tipo: List[str]
+        :return:
+            List[str]
         """
         list_pages: List[str] = []
         # page_element é o elemento em que as páginas são renderizadas.
@@ -196,41 +193,32 @@ class ScraperChaptersMangaLivre:
             )
             # clicando no botão e carregando a próxima página do capítulo.
             button_element.click()
+            time.sleep(self._CLICK_TIME)
 
         return list_pages
 
-    def get_all_chapters(self, urls: List[str]) -> List[Dict[str, List[str]]]:
+    def get_chapter_pages(self, manga: MangaModel):
+        """Insere as páginas e o número de páginas no seu capítulo
+        específico. O mangá tem que estar inicializado por get_manga_info().
+
+        :param manga: um modelo de mangá já inicializado.
+
+        :return:
+            None
         """
-            Retorna uma lista de dicionários, onde cada dicionário
-            representa um capítulo.
-
-            Parâmetros:
-                urls: List[str] -> é a lista de urls dos capítulos
-                de um mangá do site "https://mangalivre.net".
-
-            Retorno:
-                tipo: List[str]) -> List[Dict[str, List[str]]]
-
-        """
-
-        all_chapters: List[Dict[str, List[str]]] = []
-
-        for url in urls:
-            manga_chapter: Dict[str, List[str]] = {}
-            self.go_to_the_chapter(url)
+        for chapter in manga.chapters:
+            chapter_url = chapter["url"]
+            self.go_to_the_chapter(chapter_url)
             number_of_pages: int = self.get_number_of_pages()
-            number_of_chapter: str = self.get_number_of_chapter()
             chapter_pages: List[str] = self.get_pages(number_of_pages)
-            manga_chapter[number_of_chapter] = chapter_pages
-            all_chapters.append(manga_chapter)
-
-        return all_chapters
+            chapter["pages"] = chapter_pages
+            chapter["number_of_pages"] = number_of_pages
 
     def close_browser(self) -> None:
         """
         Finaliza o navegador e fecha todas as janelas associadas à ele.
 
-        Retorno:
-            tipo: None
+        :return:
+            None
         """
         self._browser.quit()

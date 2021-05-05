@@ -1,4 +1,5 @@
-from typing import List, Dict
+from typing import List, Dict, Any
+import json
 
 
 class MangaModel:
@@ -12,7 +13,7 @@ class MangaModel:
                  author: str = "",
                  categories: List[str] = None,
                  description: str = "",
-                 chapters: Dict[str, List[str]] = None):
+                 chapters: List[Dict[str, Any]] = None):
         """
         :param title: título do mangá.
 
@@ -42,17 +43,18 @@ class MangaModel:
         self.author: str = author
         self.categories: List[str] = categories
         self.description: str = description
-        self.chapters: Dict[str, List[str]] = chapters
+        self.chapters: List[Dict[str, Any]] = chapters
 
-    def __repr__(self):
-        return f"""
-        "title": {self.title},
-        "alternative_titles": {self.alternative_titles},
-        "url": {self.url},
-        "covert": {self.cover},
-        "status": {self.status},
-        "author": {self.author},
-        "categories": {self.categories},
-        "description": {self.description},
-        "chapters": {self.chapters}
-        """
+    def to_json(self) -> str:
+        data: Dict[str, Any] = {
+            "title": self.title,
+            "url": self.url,
+            "author": self.author,
+            "alternative_titles": self.alternative_titles,
+            "cover": self.cover,
+            "status": self.status,
+            "categories": self.categories,
+            "description": self.description,
+            "chapters": self.chapters,
+        }
+        return json.dumps(data, indent=4, ensure_ascii=False)
