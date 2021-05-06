@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-import json
+from json import dumps
 
 
 class MangaModel:
@@ -57,4 +57,18 @@ class MangaModel:
             "description": self.description,
             "chapters": self.chapters,
         }
-        return json.dumps(data, indent=4, ensure_ascii=False)
+        return dumps(data, indent=4, ensure_ascii=False)
+
+    @classmethod
+    def from_json(cls, json_content: Dict[str, Any]) -> "MangaModel":
+        return MangaModel(
+            title=json_content["title"],
+            url=json_content["url"],
+            author=json_content["author"],
+            alternative_titles=json_content["alternative_titles"],
+            cover=json_content["cover"],
+            status=json_content["status"],
+            categories=json_content["categories"],
+            description=json_content["description"],
+            chapters=json_content["chapters"],
+        )
