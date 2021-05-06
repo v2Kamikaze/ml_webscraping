@@ -1,12 +1,13 @@
 from scraper_mangas_info import ScraperMangasInfo
 from scraper_mangas_chapters import ScraperChapters
 
-with open("teste.json", "a") as file:
-    test_url = "https://mangalivre.net/manga/spy-x-family/8103"
-    scraper_info = ScraperMangasInfo()
-    manga_test = scraper_info.get_manga_info(test_url)
-    scraper_info.close_browser()
-    scraper_chapter = ScraperChapters(timeout=30)
-    scraper_chapter.get_chapter_pages(manga_test)
+test_url = "https://mangalivre.net/manga/dorohedoro/728"
+scraper_info = ScraperMangasInfo(headless_mode=True)
+manga = scraper_info.get_manga_info(test_url)
+scraper_info.close_browser()
+file_name = "-".join(manga.title.lower().split(" ")) + ".json"
+with open(file_name, "w") as file:
+    scraper_chapter = ScraperChapters(timeout=60)
+    scraper_chapter.get_chapter_pages(manga)
     scraper_chapter.close_browser()
-    file.write(manga_test.to_json())
+    file.write(manga.to_json())

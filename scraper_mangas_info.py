@@ -38,7 +38,7 @@ class ScraperMangasInfo:
                 None
         """
         last_page_height = self._browser.execute_script(
-            "return document.body.scrollHeight"
+            "return document.body.scrollHeight;"
         )
         # Dando scroll até que a lista seja completamente carregada,
         # se a nova posiçao do stroll for igual a última, então a tela já
@@ -49,7 +49,7 @@ class ScraperMangasInfo:
             )
             time.sleep(0.5)
             new_page_height = self._browser.execute_script(
-                "return document.body.scrollHeight"
+                "return document.body.scrollHeight;"
             )
             if new_page_height == last_page_height:
                 return

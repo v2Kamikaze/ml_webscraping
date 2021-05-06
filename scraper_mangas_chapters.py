@@ -22,6 +22,9 @@ class ScraperChapters:
     # diferença de tempo entre os cliquer na página.
     _CLICK_TIME = 0.5
 
+    # tempo para se esperar entre uma request e outra se houver erro.
+    _REQUEST_ERROR_TIME = 1
+
     # _URL_BASE_READER é a url base para para o leitor dos capítulos.
     # Se a url de um capítulo não contém _URL_BASE_READER, então não
     # pertence ao site "https://mangalivre.net".
@@ -92,15 +95,18 @@ class ScraperChapters:
 
         if self._URL_BASE_READER not in url:
             print(f"Url inválida! {self._browser.current_url}")
-
-        self._browser.get(url)
+        try:
+            self._browser.get(url)
+        except TimeoutException:
+            time.sleep(self._REQUEST_ERROR_TIME)
+            self._browser.get(url)
 
     def get_number_of_pages(self) -> int:
         """
         Retorna o número de páginas do capítulo atual no navegador.
 
         :return:
-            int
+            o número de páginas do capítulo.
         """
 
         num_pages: int
@@ -130,7 +136,7 @@ class ScraperChapters:
         """Retorna o número do capítulo atual do que está no browser.
 
         :return:
-            int
+            o número do capítulo.
         """
 
         number_of_chapter: str
@@ -169,7 +175,7 @@ class ScraperChapters:
         começa pela página 1.
 
         :return:
-            List[str]
+            uma lista com todas as páginas do capítulo.
         """
         list_pages: List[str] = []
         # page_element é o elemento em que as páginas são renderizadas.
