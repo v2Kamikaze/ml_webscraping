@@ -45,8 +45,8 @@ class ScraperChapters:
         div.manga-page > div > img
     """
 
-    # seletor css para o elementoque contém o botão para
-    # príxma ppágina.
+    # seletor css para o elemento que contém o botão para
+    # príxma página.
     CSS_SELECTOR_BUTTON_NEXT_PAGE: str = """
         #reader-wrapper > div:nth-child(10) >
         div.page-navigation-wrapper > div > div.page-next
@@ -56,6 +56,16 @@ class ScraperChapters:
         #reader-wrapper > div.reader-navigation.clear-fix >
         div.chapter-selection-container > div.chapter-selection >
         span.current-chapter > em
+    """
+
+    CSS_SELECTOR_CHECK_BUTTON_18: str = """
+        #reader-wrapper > div.reader-content.fit.horizontal >
+        div.adult-warning-wrapper > div > div > a
+    """
+
+    CSS_BOX_CHECK_18: str = """
+        #reader-wrapper > div.reader-content.fit.horizontal >
+        div.adult-warning-wrapper
     """
 
     def __init__(self, timeout: int = 0, headless_mode: bool = False) -> None:
@@ -100,6 +110,47 @@ class ScraperChapters:
         except TimeoutException:
             time.sleep(self._REQUEST_ERROR_TIME)
             self._browser.get(url)
+
+    def _is_18(self) -> bool:
+        """
+        Retorna se um mangá é +18 ou não.
+
+        :return:
+            retorna True se for +18 e False se não.
+        """
+
+        button_locator: Tuple = (
+            By.CSS_SELECTOR, self.CSS_BOX_CHECK_18
+        )
+
+        try:
+            content = self._web_driver_wait.until(
+                ec.visibility_of_element_located(button_locator)
+            )
+            # caso tenha conteúdo na caixa, o mangá é.
+            return len(content.text.split()) != 0
+        except TimeoutException:
+            return False
+
+    def _click_button_18(self):
+        """
+        Clica no botão para acessar o conteúdo +18.
+
+        :return:
+            None
+        """
+        button_locator: Tuple = (
+            By.CSS_SELECTOR,
+            self.CSS_SELECTOR_CHECK_BUTTON_18
+        )
+        try:
+            button_18 = self._web_driver_wait.until(
+                ec.element_to_be_clickable(button_locator)
+            )
+            button_18.click()
+            time.sleep(self._CLICK_TIME)
+        except TimeoutException:
+            return
 
     def get_number_of_pages(self) -> int:
         """
@@ -215,6 +266,11 @@ class ScraperChapters:
         for chapter in manga.chapters:
             chapter_url = chapter["url"]
             self.go_to_the_chapter(chapter_url)
+            # verificando se o mangá é +18.
+            # caso seja, irá clicar na caixa de checagem.
+            if self._is_18():
+                self._click_button_18()
+
             number_of_pages: int = self.get_number_of_pages()
             chapter_pages: List[str] = self.get_pages(number_of_pages)
             chapter["pages"] = chapter_pages

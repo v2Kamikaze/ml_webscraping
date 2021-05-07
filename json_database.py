@@ -25,7 +25,7 @@ class JsonDB:
             None
         """
         try:
-            os.mkdir(cls._FULL_DIR)
+            os.makedirs(cls._FULL_DIR)
         # o diretório já existe.
         except FileExistsError:
             return
@@ -41,7 +41,7 @@ class JsonDB:
             None
         """
         file_dir = cls._FULL_DIR + "/list_titles.json"
-        with open(file_dir, "w+") as file:
+        with open(file_dir, "w+", encoding="utf-8") as file:
             file.write(dumps(list_titles, ensure_ascii=False, indent=4))
 
     @classmethod
@@ -56,10 +56,10 @@ class JsonDB:
             None
         """
         file_dir = cls._FULL_DIR + "/list_titles.json"
-        outdated_file = open(file_dir, "r")
+        outdated_file = open(file_dir, "r", encoding="utf-8")
         outdated_list = loads(outdated_file.read())
         outdated_file.close()
-        with open(file_dir, "w+") as updated_file:
+        with open(file_dir, "w+", encoding="utf-8") as updated_file:
             for title in new_list_titles:
                 if title not in outdated_list:
                     outdated_list.append(title)
@@ -76,5 +76,5 @@ class JsonDB:
             None
         """
         name_file = "-".join(manga.title.lower().split(" ")) + ".json"
-        with open(cls._DB_DIR + "/" + name_file, "w+") as file:
+        with open(cls._DB_DIR + "/" + name_file, "w+", encoding="utf-8") as file:
             file.write(manga.to_json())

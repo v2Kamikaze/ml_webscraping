@@ -1,27 +1,20 @@
-"""from scraper_mangas_info import ScraperMangasInfo
+from scraper_mangas_info import ScraperMangasInfo
 from scraper_mangas_chapters import ScraperChapters
-
-test_url = "https://mangalivre.net/manga/dorohedoro/728"
-scraper_info = ScraperMangasInfo(headless_mode=True)
-manga = scraper_info.get_manga_info(test_url)
-scraper_info.close_browser()
-file_name = "-".join(manga.title.lower().split(" ")) + ".json"
-with open(file_name, "w") as file:
-    scraper_chapter = ScraperChapters(timeout=60)
-    scraper_chapter.get_chapter_pages(manga)
-    scraper_chapter.close_browser()
-    file.write(manga.to_json())
-"""
+from scraper_mangas_links import get_mangas_links_in_range
 from json_database import JsonDB
-from manga_model import MangaModel
 
-list_titles = ["kimetsu no Yaiba", "dorohedoro", "one piece"]
 
 JsonDB.create_db_dir()
-JsonDB.save_manga(MangaModel(title="kimetsu no Yaiba", status="completo"))
-JsonDB.save_manga(MangaModel(title="dorohedoro", status="completo"))
-JsonDB.save_manga(MangaModel(title="one piece", status="em lançamento"))
-JsonDB.save_manga(MangaModel(title="jujust kaisen", status="em lançamento"))
-JsonDB.save_manga(MangaModel(title="spy x family", status="em lançamento"))
-JsonDB.save_list_titles(list_titles)
-JsonDB.update_list_title(["kimetsu no Yaiba", "dorohedoro", "one piece", "toriko"])
+mangas_links = get_mangas_links_in_range(2, 2, sleep_time=1)
+JsonDB.save_list_titles(mangas_links)
+
+
+for manga_link in mangas_links:
+    scraper_info = ScraperMangasInfo()
+    manga = scraper_info.get_manga_info(manga_link)
+    scraper_info.close_browser()
+    JsonDB.save_manga(manga)
+    scraper_chapters = ScraperChapters(timeout=30)
+    scraper_chapters.get_chapter_pages(manga)
+    JsonDB.save_manga(manga)
+    scraper_chapters.close_browser()
